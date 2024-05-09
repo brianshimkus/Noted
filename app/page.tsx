@@ -1,9 +1,7 @@
-import { ThemeToggle } from '@/components/theme-toggle'
-
 export default function Home() {
 	return (
-		<>
-			<ThemeToggle />
-		</>
+		<div className='container mt-12'>
+			<h1>Hello</h1>
+		</div>
 	)
 }
