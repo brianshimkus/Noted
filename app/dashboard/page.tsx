@@ -1,3 +1,3 @@
 export default function DashboardPage() {
-	return <div className='container mt-12'>DashboardPage</div>
+	return <div className='container'>Dashboard Page</div>
 }
