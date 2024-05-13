@@ -1,6 +1,11 @@
-import { Button } from '@/components/ui/button'
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { CheckCircle2 } from 'lucide-react'
+import prisma from '@/app/lib/db'
+import { unstable_noStore as noStore } from 'next/cache'
+import { getStripeSession } from '@/app/lib/stripe'
+import { redirect } from 'next/navigation'
+import { StripeSubscriptionCreationButton } from '@/app/components/SubmitButtons'
 
 const featureItems = [
 	{ name: 'Lorem Ipsum something' },
@@ -10,7 +15,58 @@ const featureItems = [
 	{ name: 'Lorem Ipsum something' },
 ]
 
-export default function BillingPage() {
+async function getData(userId: string) {
+	noStore()
+	const data = await prisma.subscription.findUnique({
+		where: {
+			userId: userId,
+		},
+		select: {
+			status: true,
+			user: {
+				select: {
+					stripeCustomerId: true,
+				},
+			},
+		},
+	})
+
+	return data
+}
+
+export default async function BillingPage() {
+	const { getUser } = getKindeServerSession()
+	const user = await getUser()
+	const data = await getData(user?.id as string)
+
+	async function createSubscription() {
+		'use server'
+
+		const dbUser = await prisma.user.findUnique({
+			where: {
+				id: user?.id,
+			},
+			select: {
+				stripeCustomerId: true,
+			},
+		})
+
+		if (!dbUser?.stripeCustomerId) {
+			throw new Error('Unable to get customer id')
+		}
+
+		const subscriptionUrl = await getStripeSession({
+			customerId: dbUser.stripeCustomerId,
+			domainUrl:
+				process.env.NODE_ENV == 'production'
+					? (process.env.PRODUCTION_URL as string)
+					: 'http://localhost:3000',
+			priceId: process.env.STRIPE_PRICE_ID as string,
+		})
+
+		return redirect(subscriptionUrl)
+	}
+
 	return (
 		<div className='max-w-md mx-auto space-y-4'>
 			<Card className='flex flex-col'>
@@ -42,8 +98,8 @@ export default function BillingPage() {
 					))}
 				</ul>
 
-				<form className='w-full'>
-					<Button className='w-full'>Buy today</Button>
+				<form className='w-full' action={createSubscription}>
+					<StripeSubscriptionCreationButton />
 				</form>
 			</div>
 		</div>
