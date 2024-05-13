@@ -6,6 +6,7 @@ import { Edit, File, Trash } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { TrashDelete } from '../components/SubmitButtons'
+import { Separator } from '@/components/ui/separator'
 
 async function getData(userId: string) {
 	noStore()
@@ -104,7 +105,10 @@ export default async function DashboardPage() {
 								<h2 className='font-semibold text-xl text-primary'>
 									{item.title}
 								</h2>
-								<p>
+								<h3 className='text-md'>{item.description}</h3>
+								<Separator className='mt-4 mb-1' />
+								<p className='text-muted-foreground'>
+									<span>Created: </span>
 									{new Intl.DateTimeFormat('en-US', {
 										dateStyle: 'full',
 									}).format(new Date(item.createdAt))}
