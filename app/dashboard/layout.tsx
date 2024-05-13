@@ -3,6 +3,7 @@ import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { redirect } from 'next/navigation'
 import prisma from '../lib/db'
 import { DashboardNav } from '../components/DashboardNavbar'
+import { stripe } from '../lib/stripe'
 
 async function getData({
 	email,
@@ -34,6 +35,21 @@ async function getData({
 				id: id,
 				email: email,
 				name: name,
+			},
+		})
+	}
+
+	if (!user?.stripeCustomerId) {
+		const data = await stripe.customers.create({
+			email: email,
+		})
+
+		await prisma.user.update({
+			where: {
+				id: id,
+			},
+			data: {
+				stripeCustomerId: data.id,
 			},
 		})
 	}
