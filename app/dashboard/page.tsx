@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import prisma from '../lib/db'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
-import { Edit, File, Trash } from 'lucide-react'
+import { Edit, File } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { TrashDelete } from '../components/SubmitButtons'
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
 					</Button>
 				) : (
 					<Button asChild>
-						<Link href='/dashboard/billing'>Create a new Note</Link>
+						<Link href='/dashboard/billing'>Create a new note</Link>
 					</Button>
 				)}
 			</div>
